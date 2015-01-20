@@ -1,2 +1,3 @@
 # neural-eng
-My code implementations and notes for University of Waterloo's Systems Design 556 - Simulating Neurobiological Systems
+My code and notes for the course SYDE 556: Simulating Neurobiological Systems.
+Course offered at the University of Waterloo under the Department of Systems Design Engineering (SYDE).
