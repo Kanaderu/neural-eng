@@ -171,7 +171,14 @@ for cell in rmse_table.properties()['child_artists']:
     cell.set_height(0.15) # increase cell height
 draw()
 
-print('Based on the RMSE of the variations of neuron noise and decoder noise compensation, it appears that the noise introduces a hundred-fold increase in the RMSE that the normal decoder produces. Compensating for the noise by altering the decoder accordingly results in a better result. However, in the non-noisy case, the compensation results in higher error. In essence, using the decoder to compensate for noisy neurons results in a lower variability in RMSE, which means a better error in the worst case, but a worse error in the best case.')
+print(('Based on the RMSE of the variations of neuron noise and decoder noise '
+       'compensation, it appears that the noise introduces a hundred-fold '
+       'increase in the RMSE that the normal decoder produces. Compensating '
+       'for the noise by altering the decoder accordingly results in a better '
+       'result. However, in the non-noisy case, the compensation results in '
+       'higher error. In essence, using the decoder to compensate for noisy '
+       'neurons results in a lower variability in RMSE, which means a better '
+       'error in the worst case, but a worse error in the best case.'))
 
 # The end
 print_header('End of script')
