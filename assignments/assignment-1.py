@@ -1,7 +1,8 @@
 import numpy as np
-from matplotlib.pyplot import plot, xlabel, ylabel, show, draw, figure, suptitle, table, subplot
-from nengutils import print_header
+from matplotlib.pyplot import plot, xlabel, ylabel, show, draw, figure, suptitle, table, subplot, legend, axis
+from nengutils import print_header, rmse
 
+print_header('SYDE 556: Assignment 1')
 print_header('Section 1')
 print_header('Section 1.1',1)
 print('Define rectified linear neuron model')
@@ -26,22 +27,29 @@ class RectifiedLinearNeuron:
             rates.append(rate)
         return rates
 
+def generate_RL_neurons(num, stimuli):
+    neurons = []
+    rates = []
+    for i in range(num):
+        n = RectifiedLinearNeuron()
+        neurons.append(n)
+        rates.append(n.rates(stimuli))
+    return neurons, rates
+
+
 print_header('Part A',2)
 print('Generate set of random rectified linear neurons and plot them')
 
 figure(1)
 suptitle('Random Rectified Linear Neurons')
 
-neurons = []
-rates = []
+num_neurons = 16
 S = 100 # samples
 x = np.linspace(-1,1,S)
-for i in range(16):
-    n = RectifiedLinearNeuron()
-    n.print_vars()
-    neurons.append(n)
-    rates.append(n.rates(x))
-    plot(x, rates[i])
+neurons, rates = generate_RL_neurons(num_neurons, x)
+for neuron, nrate in zip(neurons, rates):
+    neuron.print_vars()
+    plot(x, nrate)
 
 xlabel('$x$ (stimuli)')
 ylabel('$a$ (Hz)')
@@ -76,14 +84,14 @@ xlabel('$x$ (stimuli)')
 ylabel(r'$x - \hat x$ (error)')
 draw()
 
-x_rmse = np.sqrt(np.mean(np.power(x_error,2)))
-print('Root Mean Squared Error (RMSE): ',x_rmse)
+x_rmse = rmse(x, x_approx)
+print('Root Mean Squared Error (RMSE): ', x_rmse)
 
 print_header('Part D',2)
 print('Decode under Gaussian noise proportional to highest firing rate')
 
-noise_stddev = 0.2*np.amax(A)
-gauss_noise = np.random.normal(scale=noise_stddev,size=np.shape(A))
+stddev_noise = 0.2*np.amax(A)
+gauss_noise = np.random.normal(scale=stddev_noise,size=np.shape(A))
 A_noisy = A + gauss_noise
 
 x_approx_noisy = np.dot(A_noisy,decoders)
@@ -103,13 +111,13 @@ xlabel('$x$ (stimuli)')
 ylabel(r'$x - \hat x$ (error)')
 draw()
 
-x_rmse_noisy = np.sqrt(np.mean(np.power(x_error_noisy,2)))
+x_rmse_noisy = rmse(x, x_approx_noisy)
 print('Root Mean Squared Error under Gaussian Noise (RMSE): ', x_rmse_noisy)
 
 print_header('Part E',2)
 print('Recompute optimal decoders to take Gaussian noise into account')
 
-gamma_noisy = np.dot(np.transpose(A),A)/S + noise_stddev*np.identity(A.shape[1])
+gamma_noisy = np.dot(np.transpose(A),A)/S + stddev_noise*np.identity(A.shape[1])
 upsilon = np.dot(np.transpose(A),x)/S
 decoders_noisy = np.dot(np.linalg.inv(gamma_noisy),upsilon)
 print(decoders_noisy)
@@ -131,7 +139,7 @@ xlabel('$x$ (stimuli)')
 ylabel(r'$x - \hat x$ (error)')
 draw()
 
-x_rmse_nd = np.sqrt(np.mean(np.power(x_error_nd,2)))
+x_rmse_nd = rmse(x, x_approx_nd)
 print('Root Mean Squared Error with Noise-Optimized Decoders (RMSE): ', x_rmse_nd)
 
 x_approx_noisy_nd = np.dot(A_noisy,decoders_noisy)
@@ -151,10 +159,10 @@ xlabel('$x$ (stimuli)')
 ylabel(r'$x - \hat x$ (error)')
 draw()
 
-x_rmse_noisy_nd = np.sqrt(np.mean(np.power(x_error_noisy_nd,2)))
+x_rmse_noisy_nd = rmse(x, x_approx_noisy_nd)
 print('Root Mean Squared Error under Gaussian Noise with Noise-Optimized Decoders (RMSE): ', x_rmse_noisy_nd)
 
-print_header('Part F')
+print_header('Part F',2)
 print('Show a table with all four RMSE values')
 
 figure(10)
@@ -179,6 +187,78 @@ print(('Based on the RMSE of the variations of neuron noise and decoder noise '
        'higher error. In essence, using the decoder to compensate for noisy '
        'neurons results in a lower variability in RMSE, which means a better '
        'error in the worst case, but a worse error in the best case.'))
+
+print_header('Section 1.2',1)
+print_header('Part A and B',2)
+print('Explore various error associated with various numbers of neurons')
+
+stddev_factor_set = [0.1, 0.01]
+fig_num = 10
+S = 100 # samples
+x = np.linspace(-1,1,S)
+num_runs = 5
+num_neuron_set = [4,8,16,32,64,128,256]
+
+for stddev_factor in stddev_factor_set:
+    error_dist_set = []
+    error_noise_set = []
+    for num_neurons in num_neuron_set:
+        error_dist = 0
+        error_noise = 0
+        for run in range(num_runs):
+            neurons, rates = generate_RL_neurons(num_neurons, x)
+            A = np.transpose(rates)
+            stddev_noise = stddev_factor*np.amax(A)
+            gamma = np.dot(np.transpose(A),A)/S + stddev_noise*np.identity(A.shape[1])
+            upsilon = np.dot(np.transpose(A),x)/S
+            decoders = np.dot(np.linalg.inv(gamma),upsilon)
+            x_approx = np.dot(A,decoders)
+            error_dist += stddev_noise*sum(np.power(decoders,2))
+            error_noise += sum(np.power(x - x_approx,2))/S
+        
+        error_dist_set.append(error_dist/num_runs)
+        error_noise_set.append(error_noise/num_runs)
+    
+    fig = figure(fig_num+1)
+    suptitle('Log-Log Plot of Neuron Number versus Distortion Error with Noise Std Dev Factor of {SD}'.format(SD=stddev_factor))
+    ax = fig.add_subplot(1,1,1)
+    err = ax.plot(num_neuron_set, error_dist_set, label='Error')
+    n = ax.plot(num_neuron_set, [error_dist_set[0]/N for N in num_neuron_set],'--g', label=r'$1/N$')
+    n2 = ax.plot(num_neuron_set, [error_dist_set[0]/(N**2) for N in num_neuron_set],'--r', label=r'$1/N^2$')
+    n4 = ax.plot(num_neuron_set, [error_dist_set[0]/(N**4) for N in num_neuron_set],'--y', label=r'$1/N^4$')
+    legend(handles=[err,n,n2,n4],labels=[])
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    xlabel('Number of neurons')
+    ylabel('$E_{dist}$ (distortion error)')
+    axis([1,1000,10**(-8),0.1])
+    draw()
+    
+    fig = figure(fig_num+2)
+    suptitle('Log-Log Plot of Neuron Number versus Noise Error with Noise Std Dev Factor of {SD}'.format(SD=stddev_factor))
+    ax = fig.add_subplot(1,1,1)
+    err = ax.plot(num_neuron_set, error_noise_set, label='Error')
+    n = ax.plot(num_neuron_set, [error_noise_set[0]/N for N in num_neuron_set],'--g', label=r'$1/N$')
+    n2 = ax.plot(num_neuron_set, [error_noise_set[0]/(N**2) for N in num_neuron_set],'--r', label=r'$1/N^2$')
+    n4 = ax.plot(num_neuron_set, [error_noise_set[0]/(N**4) for N in num_neuron_set],'--y', label=r'$1/N^4$')
+    legend(handles=[err,n,n2,n4], labels=[])
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    xlabel('Number of neurons')
+    ylabel('$E_{noise}$ (noise error)')
+    axis([1,1000,10**(-8),0.1])
+    draw()
+    
+    print('Standard deviation factor of noise: ', stddev_factor)
+    print('Error due to distortion: ', error_dist_set)
+    print('Error due to noise: ', error_noise_set)
+    fig_num += 2
+
+print_header('Part C',2)
+print('Comment on differences in parts A and B')
+
+print((''
+       ''))
 
 # The end
 print_header('End of script')
