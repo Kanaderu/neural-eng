@@ -3,7 +3,7 @@ from matplotlib.pyplot import plot, xlabel, ylabel, show, draw, figure, suptitle
 from nengutils import print_header, rmse
 
 print_header('SYDE 556: Assignment 1')
-print_header('Section 1')
+print_header('Section 1: Representation of Scalars')
 print_header('Section 1.1',1)
 print('Define rectified linear neuron model')
 
@@ -198,6 +198,7 @@ S = 100 # samples
 x = np.linspace(-1,1,S)
 num_runs = 5
 num_neuron_set = [4,8,16,32,64,128,256]
+print('Number of neurons', num_neuron_set)
 
 for stddev_factor in stddev_factor_set:
     error_dist_set = []
@@ -213,8 +214,9 @@ for stddev_factor in stddev_factor_set:
             upsilon = np.dot(np.transpose(A),x)/S
             decoders = np.dot(np.linalg.inv(gamma),upsilon)
             x_approx = np.dot(A,decoders)
-            error_dist += stddev_noise*sum(np.power(decoders,2))
-            error_noise += sum(np.power(x - x_approx,2))/S
+            error_dist += sum(np.power(x - x_approx,2))/S
+            error_noise += stddev_noise*sum(np.power(decoders,2))
+
         
         error_dist_set.append(error_dist/num_runs)
         error_noise_set.append(error_noise/num_runs)
@@ -257,8 +259,77 @@ for stddev_factor in stddev_factor_set:
 print_header('Part C',2)
 print('Comment on differences in parts A and B')
 
-print((''
-       ''))
+print(('While there is a significant difference in the total error resuling '
+       'from a change in the standard deviation of the neuron noise, the '
+       'proportionality between the number of neurons and the total error '
+       'from distortion and noise is constant. The error due to noise is '
+       'related to the number of neurons with a 1/N relationship, and '
+       'the error due to distortion is related to the number of neurons '
+       'with a 1/N^2 relationship. A massive decrease in error (10^6 fold) '
+       'can be seen, for example, by increasing neuron population from '
+       '4 to 256. Only a modest improvement in error can be seen with a '
+       'decrease in standard deviation of the noise. Also, at low neuron '
+       'populations, distortion error is greater but at high neuron '
+       'populations noise error is higher. Therefore more neurons will '
+       'encode a stimuli better than fewer neurons, but noise error '
+       'will not be overcome as easily with more neurons'))
+
+print_header('Section 1.3',1)
+print('Define a leaky integrate-and-fire neuron model')
+
+class LIFNeuron:
+    e_vals = [-1,1]
+
+    def __init__(self, tau_ref=0.002, tau_rc=0.02):
+        self.x_int = np.random.uniform(-1,1)
+        self.max_fire_rate = np.random.uniform(100,200)
+        self.encoder = np.random.choice(self.e_vals)
+        self.tau_ref = tau_ref
+        self.tau_rc = tau_rc
+        
+        exp_term = 1 - np.exp((tau_ref - 1/self.max_fire_rate)/tau_rc)
+        enc_term = self.encoder**2 - self.encoder*self.x_int
+        self.alpha = (1 - exp_term)/(exp_term*enc_term)
+        self.j_bias = 1 - self.alpha*self.encoder*self.x_int
+
+    def print_vars(self):
+        print(self.__dict__)
+
+    def rates(self, x):
+        rates = []
+        for pos in x:
+            rate = 0
+            J = self.alpha*pos*self.encoder+self.j_bias
+            if J > 1:
+                rate = 1/(self.tau_ref - self.tau_rc*np.log(1 - 1/J))
+            rates.append(rate)
+        return rates
+
+def generate_LIF_neurons(num, stimuli):
+    neurons = []
+    rates = []
+    for i in range(num):
+        n = LIFNeuron()
+        neurons.append(n)
+        rates.append(n.rates(stimuli))
+    return neurons, rates
+
+figure(15)
+suptitle('Random Leaky Integrate-and-Fire Neurons')
+
+num_neurons = 16
+S = 100 # samples
+x = np.linspace(-1,1,S)
+neurons, rates = generate_LIF_neurons(num_neurons, x)
+for neuron, nrate in zip(neurons, rates):
+    neuron.print_vars()
+    plot(x, nrate)
+
+xlabel('$x$ (stimuli)')
+ylabel('$a$ (Hz)')
+draw()
+
+
 
 # The end
 print_header('End of script')
