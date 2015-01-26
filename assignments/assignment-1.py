@@ -210,6 +210,10 @@ for stddev_factor in stddev_factor_set:
             neurons, rates = generate_RL_neurons(num_neurons, x)
             A = np.transpose(rates)
             stddev_noise = stddev_factor*np.amax(A)
+
+            gauss_noise = np.random.normal(scale=stddev_noise,size=np.shape(A))
+            A = A + gauss_noise
+            
             gamma = np.dot(np.transpose(A),A)/S + stddev_noise*np.identity(A.shape[1])
             upsilon = np.dot(np.transpose(A),x)/S
             decoders = np.dot(np.linalg.inv(gamma),upsilon)
@@ -329,6 +333,58 @@ xlabel('$x$ (stimuli)')
 ylabel('$a$ (Hz)')
 draw()
 
+print_header('Part B',2)
+print('Find error due to noise')
+
+stddev_noise = 0.2*np.amax(A)
+A = np.transpose(rates)
+gauss_noise = np.random.normal(scale=stddev_noise,size=np.shape(A))
+A_noisy = A + gauss_noise
+
+gamma_noisy = np.dot(np.transpose(A),A)/S + stddev_noise*np.identity(A.shape[1])
+upsilon = np.dot(np.transpose(A),x)/S
+decoders_noisy = np.dot(np.linalg.inv(gamma_noisy),upsilon)
+print(decoders_noisy)
+
+x_approx_nd = np.dot(A,decoders_noisy)
+figure(16)
+suptitle('Neural Representation of Stimuli with Noise-Optimized Decoders')
+plot(x,x_approx_nd,'b')
+plot(x,x,'r')
+xlabel('$x$ (stimuli)')
+ylabel(r'$\hat x$ (approximation)')
+draw()
+
+x_error_nd = x - x_approx_nd
+figure(17)
+suptitle('Representation Error with Noise-Optimized Decoders')
+plot(x,x_error_nd)
+xlabel('$x$ (stimuli)')
+ylabel(r'$x - \hat x$ (error)')
+draw()
+
+x_rmse_nd = rmse(x, x_approx_nd)
+print('Root Mean Squared Error with Noise-Optimized Decoders (RMSE): ', x_rmse_nd)
+
+x_approx_noisy_nd = np.dot(A_noisy,decoders_noisy)
+figure(18)
+suptitle('Neural Representation of Stimuli under Gaussian Noise with Noise-Optimized Decoders')
+plot(x,x_approx_noisy_nd,'b')
+plot(x,x,'r')
+xlabel('$x$ (stimuli)')
+ylabel(r'$\hat x$ (approximation)')
+draw()
+
+x_error_noisy_nd = x - x_approx_noisy_nd
+figure(19)
+suptitle('Representation Error with Gaussian Noise and Noise-Optimized Decoders')
+plot(x,x_error_noisy_nd)
+xlabel('$x$ (stimuli)')
+ylabel(r'$x - \hat x$ (error)')
+draw()
+
+x_rmse_noisy_nd = rmse(x, x_approx_noisy_nd)
+print('Root Mean Squared Error under Gaussian Noise with Noise-Optimized Decoders (RMSE): ', x_rmse_noisy_nd)
 
 
 # The end
