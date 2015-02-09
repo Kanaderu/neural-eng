@@ -20,6 +20,9 @@ I have been taking Professor Chris Eliasmith's course 'Simulating Neurobiologica
 
 ### Chapter 1
 
+* We still do not really know what THE architecture of the brain is
+* Classical approach is to use a set of control structures (if-then) to build a robotic system
+
 #### Questions
 
 * What is the Semantic Pointer Architecture (SPA)?

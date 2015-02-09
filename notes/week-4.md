@@ -1,6 +1,10 @@
 # Week 4
 ## Temporal Representation
 
+TODO: Summary
+
+### Notes
+
 Temporal filtering
 
 Receptors:
@@ -15,13 +19,11 @@ Why use spikes if it introduces noise? (fluctuations in encoding)
 
 This lesson and previous lessons are vital as fundamentals in understanding the next lessons.
 
-### Questions
-1. What is the cell soma?
-2. What is the optimal versus temporal filtering?
-3. What is filtering in the neural sense? (i.e. in this context)
-4. What is population and temporal coding?
-
 ## Transformation
+
+TODO: Summary
+
+### Notes
 
 Time to start connecting neurons together.
 
@@ -36,12 +38,21 @@ How do we do multiplication? There would be a nonlinearity in the dendrite. But 
 Instead of randomly distributing encoders around unit space, you can optimize for nonlinear transformations. For example, if x and y change with each other, the encoders would cluster more at 45 degrees in the space.
 
 ### Questions
-1. What is transformation?
+
+1. What is the cell soma?
+2. What is the optimal versus temporal filtering?
+3. What is filtering in the neural sense? (i.e. in this context)
+4. What is population and temporal coding?
+5. What is transformation?
     * Input stimuli -> neuron population -> neuron population -> transformed result
     * Connection between neuron populations represents a transformation
     * Ex. y = 2x ~ 2xhat
-2. What is the interpretation of the weight matrices w_ij?
-3. How does the multiplication work?
-4. What is binding?
+6. What is the interpretation of the weight matrices w_ij?
+7. How does the multiplication work?
+8. What is binding?
     * Binding of stimuli together
     * Ex. colour and object shape
+
+### Miscellaneous
+
+

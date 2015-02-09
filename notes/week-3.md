@@ -1,6 +1,10 @@
 # Week 3
 ## Temporal Representation
 
+TODO: Summary
+
+### Notes
+
 * What if stimulus x changes over time?
 * Model we have thus far is not accurate
     * It is an average firing rate over a long period of time
@@ -26,7 +30,7 @@
     * Each neuron has on average 10000 inputs
     * Non-linearities may boost signals coming from further cells
 
-### Debate of time versus rate coding
+#### Debate of time versus rate coding
 
 Do neurons use a code based on timing of spikes, or based on the rate of fire?
 * Ex. |.....|.|..||...
@@ -36,7 +40,9 @@ Do neurons use a code based on timing of spikes, or based on the rate of fire?
 * Flies react within 10 ms, so they use a timing code
 * Use one decoder with a parameter for decoding "slow" (rate) or "fast" (timing)
 
-## Miscellaneous
+### Questions
+
+### Miscellaneous
 
 * In Python, "lambda" is a way to define a function inline
 
