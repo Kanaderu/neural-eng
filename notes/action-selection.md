@@ -1,4 +1,4 @@
-# Week 7
+# Miscellaneous Lectures
 ## Action Selection
 
 In this lecture, we look at action selection, action execution, and the completion of complex tasks, all with analogies and direct comparisons to the human brain system and human behaviour. 
