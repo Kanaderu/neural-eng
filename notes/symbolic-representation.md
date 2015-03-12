@@ -50,10 +50,14 @@ But we need a way to keep the space the same size. Tensor products were on the r
 
 Every time you bind, you get rid of some information, but as long as you can unbind, you can use this as an effective system.
 
+Circular convolution in the NEF is A[*]B = F^-1[ F(A) . F(B) ] and can be done with only one layer of neurons in between input and output. For connectivity limitations, 500 dimensions seems to be good for the Fourier Transforms by empiricism.
+
 ### Questions
 
 1. How do humans represent symbols?
 2. What is the 'oscillation' solution?
+3. What is circular convolution?
+  * Two functions convolved, with one being periodically repeated
 
 ### Miscellaneous
 
